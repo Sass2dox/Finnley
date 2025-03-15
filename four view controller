@@ -1,0 +1,147 @@
+
+import UIKit
+
+class FourthViewController: UIViewController {
+    
+    // Верхнее "облачко" для вопроса
+    private let questionBubbleView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 20
+        view.layer.borderWidth = 2
+        view.layer.borderColor = UIColor(red: 105/255, green: 176/255, blue: 102/255, alpha: 1).cgColor
+        return view
+    }()
+    
+    // Текст вопроса
+    private let questionLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Зачем считать деньги?"
+        label.textAlignment = .center
+        label.font = UIFont.systemFont(ofSize: 20, weight: .semibold)
+        label.numberOfLines = 0
+        return label
+    }()
+    
+    // Картинка лягушки
+    private let frogImageView: UIImageView = {
+        let imageView = UIImageView(image: UIImage(named: "frogfour"))
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
+    
+    // Нижнее "облачко" для пояснительного текста
+    private let infoBubbleView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 20
+        view.layer.borderWidth = 2
+        view.layer.borderColor = UIColor(red: 105/255, green: 176/255, blue: 102/255, alpha: 1).cgColor
+        return view
+    }()
+    
+    // Пояснительный текст
+    private let infoLabel: UILabel = {
+        let label = UILabel()
+        label.text = """
+Многие люди теряют деньги просто потому, что не знают, на что их тратят. Но у меня есть секрет: если записывать свои расходы, ты сможешь понять, куда уходят деньги, и научиться ими управлять!
+"""
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        label.font = UIFont.systemFont(ofSize: 16, weight: .regular)
+        return label
+    }()
+    
+    // Кнопка "Продолжить"
+    private let continueButton: UIButton = {
+        let button = UIButton(type: .custom)
+        let image = UIImage(named: "Continue") // Картинка из Assets
+        button.setImage(image, for: .normal)
+        button.imageView?.contentMode = .scaleAspectFit
+        return button
+    }()
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+        setupConstraints()
+    }
+    
+    private func setupUI() {
+        // Фон экрана
+        view.backgroundColor = UIColor(
+            red: 232/255,
+            green: 252/255,
+            blue: 244/255,
+            alpha: 1
+        )
+        
+        // Добавляем все элементы
+        view.addSubview(questionBubbleView)
+        questionBubbleView.addSubview(questionLabel)
+        
+        view.addSubview(frogImageView)
+        
+        view.addSubview(infoBubbleView)
+        infoBubbleView.addSubview(infoLabel)
+        
+        view.addSubview(continueButton)
+        
+        // Действие кнопки
+        continueButton.addTarget(self, action: #selector(continueButtonTapped), for: .touchUpInside)
+    }
+    
+    private func setupConstraints() {
+        // Отключаем авторамзинг
+        [
+            questionBubbleView,
+            questionLabel,
+            frogImageView,
+            infoBubbleView,
+            infoLabel,
+            continueButton
+        ].forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
+        
+        NSLayoutConstraint.activate([
+            // Верхнее облачко (без фиксированной высоты)
+            questionBubbleView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            questionBubbleView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
+            questionBubbleView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
+            
+            // Текст вопроса внутри облачка (отступы 8)
+            questionLabel.topAnchor.constraint(equalTo: questionBubbleView.topAnchor, constant: 8),
+            questionLabel.bottomAnchor.constraint(equalTo: questionBubbleView.bottomAnchor, constant: -8),
+            questionLabel.leadingAnchor.constraint(equalTo: questionBubbleView.leadingAnchor, constant: 8),
+            questionLabel.trailingAnchor.constraint(equalTo: questionBubbleView.trailingAnchor, constant: -8),
+            
+            // Картинка лягушки
+            frogImageView.topAnchor.constraint(equalTo: questionBubbleView.bottomAnchor, constant: 20),
+            frogImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            frogImageView.widthAnchor.constraint(equalToConstant: 220),
+            frogImageView.heightAnchor.constraint(equalToConstant: 300),
+            
+            // Нижнее облачко (без фиксированной высоты)
+            infoBubbleView.topAnchor.constraint(equalTo: frogImageView.bottomAnchor, constant: 20),
+            infoBubbleView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            infoBubbleView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            // Текст внутри нижнего облачка (отступы 10)
+            infoLabel.topAnchor.constraint(equalTo: infoBubbleView.topAnchor, constant: 10),
+            infoLabel.bottomAnchor.constraint(equalTo: infoBubbleView.bottomAnchor, constant: -10),
+            infoLabel.leadingAnchor.constraint(equalTo: infoBubbleView.leadingAnchor, constant: 10),
+            infoLabel.trailingAnchor.constraint(equalTo: infoBubbleView.trailingAnchor, constant: -10),
+            
+            // Кнопка "Продолжить"
+            continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -30),
+            continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            continueButton.widthAnchor.constraint(equalToConstant: 260),
+            continueButton.heightAnchor.constraint(equalToConstant: 58)
+        ])
+    }
+    
+    @objc private func continueButtonTapped() {
+        let fiveVC = FiveViewController()
+        fiveVC.modalPresentationStyle = .fullScreen
+        present(fiveVC, animated: true, completion: nil)
+    }
+}
