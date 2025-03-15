@@ -1,0 +1,36 @@
+import UIKit
+
+class ViewController: UIViewController {
+
+    @IBOutlet weak var labelFirst: UILabel!
+    
+    @IBOutlet weak var thirdLabel: UILabel!
+    @IBOutlet weak var secondlabel: UILabel!
+    @IBOutlet weak var login: UIButton!
+    @IBOutlet weak var button2: UIButton!
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        // Do any additional setup after loading the view.
+        
+        let imageView = UIImageView(image:UIImage(named: "frog"))
+        imageView.frame = CGRect(x:8, y:150, width: 350, height: 350)
+        imageView.contentMode = .scaleAspectFit
+        view.addSubview(imageView)
+        
+        let button1 = UIButton(type: .custom)
+        button1.setImage(UIImage(named: "login"), for: .normal)
+        // Укажи позицию и размер кнопки
+        button1.frame = CGRect(x: 120, y: 669, width: 160, height: 40)
+        view.addSubview(button1)
+        
+        let button2 = UIButton(type: .custom)
+        button2.setImage(UIImage(named: "start"), for: .normal)
+        // Укажи позицию и размер кнопки
+        button2.frame = CGRect(x: 120, y: 730, width: 160, height: 40)
+        view.addSubview(button2)
+
+        
+    }
+    
+    
+}
