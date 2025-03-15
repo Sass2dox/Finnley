@@ -1,0 +1,215 @@
+import UIKit
+
+class SixViewController: UIViewController {
+    
+    // MARK: - UI Элементы
+    
+    // Заголовок
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Разложи предметы по категориям: что считается расходами?"
+        label.font = UIFont.systemFont(ofSize: 18, weight: .medium)
+        label.textColor = UIColor(red: 74/255, green: 74/255, blue: 74/255, alpha: 1)
+        label.numberOfLines = 2
+        label.textAlignment = .center
+        return label
+    }()
+    
+    // Кнопка "Проверить"
+    private let checkButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Проверить", for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 18)
+        button.backgroundColor = UIColor(red: 167/255, green: 216/255, blue: 151/255, alpha: 1) // #A7D897
+        button.layer.cornerRadius = 15
+        return button
+    }()
+    
+    // Ведро "Расход"
+    private let expenseBucket: UIImageView = {
+        // Изображение красного ведра (пример: "vedroRed")
+        let imageView = UIImageView(image: UIImage(named: "vedroRed"))
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
+    
+    // Ведро "Не расход"
+    private let notExpenseBucket: UIImageView = {
+        // Изображение зелёного ведра (пример: "vedroGreen")
+        let imageView = UIImageView(image: UIImage(named: "vedroGreen"))
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
+    
+    // Массив для хранения draggable-предметов
+    // Ключ = название (например, "burger"), значение = UIImageView
+    private var items: [String: UIImageView] = [:]
+    
+    // Словарь с начальными координатами предметов (для возврата при ошибке)
+    private var originalPositions: [String: CGPoint] = [:]
+    
+    // Словарь, в какую категорию предмет *должен* попадать
+    // "burger", "car", "gift" → "expense"
+    // "house", "cubok" → "notExpense"
+    private let correctCategoryForItem: [String: String] = [
+        "burger": "expense",
+        "car":    "expense",
+        "gift":   "expense",
+        "house":  "notExpense",
+        "cubok":  "notExpense"
+    ]
+    
+    // Словарь, куда предмет *фактически* попал (expense / notExpense / nil)
+    private var finalCategoryForItem: [String: String] = [:]
+    
+    // MARK: - Жизненный цикл
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+        setupGestures()
+    }
+    
+    // MARK: - Настройка интерфейса
+    private func setupUI() {
+        // Фон (#EFFFF0 или похожий светло-зелёный)
+        view.backgroundColor = UIColor(red: 239/255, green: 255/255, blue: 240/255, alpha: 1)
+        
+        // Добавляем заголовок
+        view.addSubview(titleLabel)
+        // Упростим: зададим frame напрямую
+        titleLabel.frame = CGRect(x: 20, y: 50, width: 350, height: 60)
+        
+        // Добавляем кнопку "Проверить"
+        view.addSubview(checkButton)
+        checkButton.frame = CGRect(x: 70, y: 550, width: 250, height: 60)
+        // Действие кнопки
+        checkButton.addTarget(self, action: #selector(checkAnswers), for: .touchUpInside)
+        
+        // Добавляем ведра
+        view.addSubview(expenseBucket)
+        expenseBucket.frame = CGRect(x: 40, y: 400, width: 120, height: 120)
+        
+        view.addSubview(notExpenseBucket)
+        notExpenseBucket.frame = CGRect(x: 230, y: 400, width: 120, height: 120)
+        
+        // Создаём предметы (5 штук) и кладём в словарь items
+        // Внимание: убедитесь, что "house", "car", "burger", "gift", "cubok" есть в Assets
+        createItem(name: "house",  x: 40,  y: 150, w: 80, h: 80)
+        createItem(name: "car",    x: 150, y: 150, w: 90, h: 60)
+        createItem(name: "burger", x: 40,  y: 260, w: 90, h: 70)
+        createItem(name: "gift",   x: 150, y: 260, w: 80, h: 80)
+        createItem(name: "cubok",  x: 270, y: 150, w: 80, h: 80)
+    }
+    
+    /// Создаём UIImageView для предмета и настраиваем
+    private func createItem(name: String, x: CGFloat, y: CGFloat, w: CGFloat, h: CGFloat) {
+        guard let image = UIImage(named: name) else { return }
+        
+        let imageView = UIImageView(image: image)
+        imageView.contentMode = .scaleAspectFit
+        imageView.frame = CGRect(x: x, y: y, width: w, height: h)
+        
+        // Сохраняем в словарь
+        items[name] = imageView
+        // Запоминаем начальную позицию
+        originalPositions[name] = CGPoint(x: x, y: y)
+        // По умолчанию предмет не в ведре
+        finalCategoryForItem[name] = nil
+        
+        // Добавляем на экран
+        view.addSubview(imageView)
+    }
+    
+    // MARK: - Жесты перетаскивания
+    private func setupGestures() {
+        // Для каждого предмета добавим UIPanGestureRecognizer
+        for (_, imageView) in items {
+            let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
+            imageView.isUserInteractionEnabled = true
+            imageView.addGestureRecognizer(pan)
+        }
+    }
+    
+    @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
+        guard let draggedView = gesture.view as? UIImageView else { return }
+        
+        let translation = gesture.translation(in: view)
+        
+        switch gesture.state {
+        case .began, .changed:
+            // Двигаем центр изображения
+            draggedView.center = CGPoint(x: draggedView.center.x + translation.x,
+                                         y: draggedView.center.y + translation.y)
+            // Обнуляем translation
+            gesture.setTranslation(.zero, in: view)
+        case .ended:
+            // Проверяем пересечение с ведром "Расход" или "Не расход"
+            if draggedView.frame.intersects(expenseBucket.frame) {
+                // Это "Расход"
+                finalCategoryForItem[itemName(of: draggedView)] = "expense"
+                draggedView.removeFromSuperview() // Убираем с экрана
+            } else if draggedView.frame.intersects(notExpenseBucket.frame) {
+                // Это "Не расход"
+                finalCategoryForItem[itemName(of: draggedView)] = "notExpense"
+                draggedView.removeFromSuperview()
+            } else {
+                // Ни с чем не пересёкся — по желанию можно вернуть на место
+                // или оставить как есть
+            }
+        default:
+            break
+        }
+    }
+    
+    /// Получаем название предмета по его UIImageView
+    private func itemName(of imageView: UIImageView) -> String {
+        for (name, iv) in items {
+            if iv == imageView {
+                return name
+            }
+        }
+        return ""
+    }
+    
+    // MARK: - Проверка ответов
+    @objc private func checkAnswers() {
+        var isAllCorrect = true
+        var wrongItems: [String] = []
+        
+        // Сравниваем то, куда предмет попал (finalCategoryForItem)
+        // с тем, куда он должен (correctCategoryForItem)
+        for (item, correctCat) in correctCategoryForItem {
+            let finalCat = finalCategoryForItem[item]
+            if finalCat != correctCat {
+                isAllCorrect = false
+                wrongItems.append(item)
+            }
+        }
+        
+        if isAllCorrect {
+            showAlert(title: "Верно!", message: "Отличная работа!")
+        } else {
+            // Возвращаем неверные предметы
+            for wrong in wrongItems {
+                // Если предмет был удалён, возвращаем его на экран
+                if let originalPoint = originalPositions[wrong],
+                   let imageView = items[wrong] {
+                    // Добавляем на экран снова
+                    view.addSubview(imageView)
+                    imageView.frame.origin = originalPoint
+                }
+                // Сбрасываем категорию
+                finalCategoryForItem[wrong] = nil
+            }
+            showAlert(title: "Есть ошибки", message: "Неверные предметы вернулись на место.")
+        }
+    }
+    
+    // Показываем UIAlert
+    private func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        present(alert, animated: true)
+    }
+}
