@@ -1,0 +1,226 @@
+
+import UIKit
+
+class FiveViewController: UIViewController {
+    
+    // MARK: - Верхняя лягушка
+    private let topFrogImage: UIImageView = {
+        let imageView = UIImageView(image: UIImage(named: "frogfive"))
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
+    
+    // Текст приветствия
+    private let topLabel: UILabel = {
+        let label = UILabel()
+        label.text = """
+Привет! Когда мы тратим деньги, это называется расходами. А если что-то досталось бесплатно — это не расход! Давай разберёмся, какие вещи считаются расходами, а какие — нет!
+"""
+        label.font = UIFont.systemFont(ofSize: 16, weight: .regular)
+        label.numberOfLines = 0
+        return label
+    }()
+    
+    // Первая линия-разделитель
+    private let separator1: UIView = {
+        let view = UIView()
+        // Зелёная линия
+        view.backgroundColor = UIColor(red: 105/255, green: 176/255, blue: 102/255, alpha: 1)
+        return view
+    }()
+    
+    // Заголовок «Расход»
+    private let expenseTitle: UILabel = {
+        let label = UILabel()
+        label.text = "Расход — это то, на что ты тратишь свои деньги."
+        label.font = UIFont.boldSystemFont(ofSize: 17)
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        return label
+    }()
+    
+    // Лягушка для блока «Расход»
+    private let expenseFrog: UIImageView = {
+        let imageView = UIImageView(image: UIImage(named: "frogfive"))
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
+    
+    // Описание «Расход» (список)
+    private let expenseLabel: UILabel = {
+        let label = UILabel()
+        label.text = """
+🏠 Аренда – ты платишь за жильё.
+🍔 Еда – покупка продуктов или поход в кафе.
+📱 Оплата телефона – связь и интернет стоят денег.
+👕 Одежда – если ты купил новую футболку, это расход.
+"""
+        label.font = UIFont.systemFont(ofSize: 16, weight: .regular)
+        label.numberOfLines = 0
+        return label
+    }()
+    
+    // Вторая линия-разделитель
+    private let separator2: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor(red: 105/255, green: 176/255, blue: 102/255, alpha: 1)
+        return view
+    }()
+    
+    // Заголовок «Не расход»
+    private let freeTitle: UILabel = {
+        let label = UILabel()
+        label.text = "Не расход — это то, что ты получил бесплатно."
+        label.font = UIFont.boldSystemFont(ofSize: 17)
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        return label
+    }()
+    
+    // Лягушка для блока «Не расход»
+    private let freeFrog: UIImageView = {
+        let imageView = UIImageView(image: UIImage(named: "frogfive"))
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
+    
+    // Описание «Не расход» (список)
+    private let freeLabel: UILabel = {
+        let label = UILabel()
+        label.text = """
+🎁 Подарки – если тебе что-то подарили, ты не тратил деньги.
+💰 Найденные деньги – они просто появились у тебя, но ты их не зарабатывал и не тратил.
+"""
+        label.font = UIFont.systemFont(ofSize: 16, weight: .regular)
+        label.numberOfLines = 0
+        return label
+    }()
+    
+    // Кнопка «Продолжить»
+    private let continueButton: UIButton = {
+        let button = UIButton(type: .custom)
+        let image = UIImage(named: "Continue")
+        button.setImage(image, for: .normal)
+        button.imageView?.contentMode = .scaleAspectFit
+        return button
+    }()
+    
+    // MARK: - Жизненный цикл
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+        setupConstraints()
+    }
+    
+    // MARK: - UI
+    private func setupUI() {
+        // Фон экрана
+        view.backgroundColor = UIColor(red: 232/255, green: 252/255, blue: 244/255, alpha: 1)
+        
+        // Добавляем сабвью
+        view.addSubview(topFrogImage)
+        view.addSubview(topLabel)
+        
+        view.addSubview(separator1)
+        view.addSubview(expenseTitle)
+        view.addSubview(expenseFrog)
+        view.addSubview(expenseLabel)
+        
+        view.addSubview(separator2)
+        view.addSubview(freeTitle)
+        view.addSubview(freeFrog)
+        view.addSubview(freeLabel)
+        
+        view.addSubview(continueButton)
+        
+        // Назначаем действие кнопки
+        continueButton.addTarget(self, action: #selector(continueButtonTapped), for: .touchUpInside)
+    }
+    
+    // MARK: - Constraints
+    private func setupConstraints() {
+        [
+            topFrogImage,
+            topLabel,
+            separator1,
+            expenseTitle,
+            expenseFrog,
+            expenseLabel,
+            separator2,
+            freeTitle,
+            freeFrog,
+            freeLabel,
+            continueButton
+        ].forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
+        
+        NSLayoutConstraint.activate([
+            // Лягушка (верх)
+            topFrogImage.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            topFrogImage.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            topFrogImage.widthAnchor.constraint(equalToConstant: 80),
+            topFrogImage.heightAnchor.constraint(equalToConstant: 140),
+            
+            // Текст справа от верхней лягушки
+            topLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            topLabel.leadingAnchor.constraint(equalTo: topFrogImage.trailingAnchor, constant: 10),
+            topLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            // Линия 1 (располагаем ниже максимального из topFrogImage / topLabel)
+            separator1.topAnchor.constraint(equalTo: topLabel.bottomAnchor, constant: 20),
+            separator1.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            separator1.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            separator1.heightAnchor.constraint(equalToConstant: 2),
+            
+            // Заголовок «Расход»
+            expenseTitle.topAnchor.constraint(equalTo: separator1.bottomAnchor, constant: 20),
+            expenseTitle.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            expenseTitle.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            // Лягушка для «Расход»
+            expenseFrog.topAnchor.constraint(equalTo: expenseTitle.bottomAnchor, constant: 20),
+            expenseFrog.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            expenseFrog.widthAnchor.constraint(equalToConstant: 80),
+            expenseFrog.heightAnchor.constraint(equalToConstant: 140),
+            
+            // Текст «Расход» (список)
+            expenseLabel.topAnchor.constraint(equalTo: expenseTitle.bottomAnchor, constant: 20),
+            expenseLabel.leadingAnchor.constraint(equalTo: expenseFrog.trailingAnchor, constant: 10),
+            expenseLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            // Линия 2
+            separator2.topAnchor.constraint(equalTo: expenseLabel.bottomAnchor, constant: 20),
+            separator2.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            separator2.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            separator2.heightAnchor.constraint(equalToConstant: 2),
+            
+            // Заголовок «Не расход»
+            freeTitle.topAnchor.constraint(equalTo: separator2.bottomAnchor, constant: 20),
+            freeTitle.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            freeTitle.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            // Лягушка для «Не расход»
+            freeFrog.topAnchor.constraint(equalTo: freeTitle.bottomAnchor, constant: 20),
+            freeFrog.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            freeFrog.widthAnchor.constraint(equalToConstant: 80),
+            freeFrog.heightAnchor.constraint(equalToConstant: 140),
+            
+            // Текст «Не расход» (список)
+            freeLabel.topAnchor.constraint(equalTo: freeTitle.bottomAnchor, constant: 20),
+            freeLabel.leadingAnchor.constraint(equalTo: freeFrog.trailingAnchor, constant: 10),
+            freeLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            // Кнопка «Продолжить»
+            continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -30),
+            continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            continueButton.widthAnchor.constraint(equalToConstant: 260),
+            continueButton.heightAnchor.constraint(equalToConstant: 58)
+        ])
+    }
+    
+    // MARK: - Действие кнопки
+    @objc private func continueButtonTapped() {
+        let sixVC = SixViewController()
+        sixVC.modalPresentationStyle = .fullScreen
+        present(sixVC, animated: true, completion: nil)
+    }
+}
