@@ -1,0 +1,115 @@
+import UIKit
+
+class ThirdViewController: UIViewController {
+
+    // Заголовок
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Для чего Finnley?"
+        label.font = UIFont(name: "Courier New", size: 28)
+        label.textAlignment = .center
+        label.numberOfLines = 1
+        return label
+    }()
+
+    // Описание функций
+    private let descriptions: [(String, String)] = [
+        ("circle.fill", "Техническое объяснение материала – Финли упрощает сложные финансовые темы, используя интерактивные элементы, визуализацию и пошаговые разъяснения."),
+        ("circle.fill", "Игровые механики – включает мини-игры, тесты и квесты, помогающие закрепить знания в увлекательной форме."),
+        ("circle.fill", "Интерактивное взаимодействие – Финли задаёт вопросы, предлагает варианты решений и адаптирует подсказки в зависимости от ответов пользователя.")
+    ]
+
+    private var descriptionLabels: [UIStackView] = []
+
+    // Кнопка с изображением
+    private let continueButton: UIButton = {
+        let button = UIButton()
+        let image = UIImage(named: "pristupim") // Загружаем изображение
+        button.setImage(image, for: .normal)
+        button.imageView?.contentMode = .scaleAspectFit
+        return button
+    }()
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+        setupConstraints()
+    }
+
+    private func setupUI() {
+        // Устанавливаем фон
+        view.backgroundColor = UIColor(red: 232/255, green: 252/255, blue: 244/255, alpha: 1)
+        
+        // Добавляем заголовок
+        view.addSubview(titleLabel)
+        
+        // Добавляем описания функций
+        for (icon, text) in descriptions {
+            let stack = createDescriptionView(icon: icon, text: text)
+            descriptionLabels.append(stack)
+            view.addSubview(stack)
+        }
+        
+        // Добавляем кнопку
+        view.addSubview(continueButton)
+        
+        // Назначаем действие кнопки
+        continueButton.addTarget(self, action: #selector(continueButtonTapped), for: .touchUpInside)
+    }
+
+    private func setupConstraints() {
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        continueButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            // Заголовок
+            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 40),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            // Кнопка "Приступим"
+            continueButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -40),
+            continueButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            continueButton.widthAnchor.constraint(equalToConstant: 260), // Размер под изображение
+            continueButton.heightAnchor.constraint(equalToConstant: 58)
+        ])
+        
+        // Описания функций
+        var previousView: UIView = titleLabel
+        for stack in descriptionLabels {
+            stack.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                stack.topAnchor.constraint(equalTo: previousView.bottomAnchor, constant: 30),
+                stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
+                stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30)
+            ])
+            previousView = stack
+        }
+    }
+
+    private func createDescriptionView(icon: String, text: String) -> UIStackView {
+        let iconView = UIImageView(image: UIImage(systemName: icon))
+        iconView.tintColor = UIColor(red: 105/255, green: 176/255, blue: 102/255, alpha: 1)
+        iconView.contentMode = .scaleAspectFit
+        iconView.widthAnchor.constraint(equalToConstant: 14).isActive = true
+        
+        let label = UILabel()
+        label.text = text
+        label.font = UIFont.systemFont(ofSize: 16, weight: .regular)
+        label.numberOfLines = 0
+        
+        let stackView = UIStackView(arrangedSubviews: [iconView, label])
+        stackView.axis = .horizontal
+        stackView.spacing = 10
+        stackView.alignment = .top
+        
+        return stackView
+    }
+
+    @objc private func continueButtonTapped() {
+        // Переходим на FourthViewController
+        let fourthVC = FourthViewController()
+        fourthVC.modalPresentationStyle = .fullScreen
+        present(fourthVC, animated: true, completion: nil)
+    }
+}
